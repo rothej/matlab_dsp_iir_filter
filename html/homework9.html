@@ -1,0 +1,144 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Designing an IIR Filter</title><meta name="generator" content="MATLAB 9.8"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2020-08-12"><meta name="DC.source" content="homework9.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Designing an IIR Filter</h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#4">Establish the input analog signal</a></li><li><a href="#5">Plot the input signal sampled at Ts</a></li><li><a href="#6">Calculate the dB magnitude of the input analog signal where N = 1024</a></li><li><a href="#7">Plot the sampled signal</a></li><li><a href="#8">Implement the filter "Hd" designed in filterDesigner</a></li><li><a href="#9">Plot the Filter's Magnitude Response</a></li><li><a href="#11">Plot the Output Signal</a></li><li><a href="#12">Calculate the dB Magnitude of the Output Signal with N = 1024</a></li></ul></div><p>A minimum-order IIR filter is designed to process an analog input signal using MATLAB:</p><p><img src="homework9_eq12619652070080829698.png" alt="$$ t = 3*sin(40*pi*t)+3*cos(50*pi*t) $$"></p><p>The filter is designed in filterDesigner and loaded into the MATLAB&reg; workspace.</p><h2 id="4">Establish the input analog signal</h2><pre class="codeinput">Fs = 100; Ts = 1/Fs;
+n = 0:Ts:1;
+x = 3*sin(40*pi*n)+3*cos(50*pi*n);
+</pre><h2 id="5">Plot the input signal sampled at Ts</h2><pre class="codeinput">stem(n,x);
+title(<span class="string">'Sampled Input'</span>);
+xlabel(<span class="string">'n'</span>); ylabel(<span class="string">'x(n)'</span>);
+</pre><img vspace="5" hspace="5" src="homework9_01.png" alt=""> <h2 id="6">Calculate the dB magnitude of the input analog signal where N = 1024</h2><pre class="codeinput">N = 1024; xfft = fft(x,N);
+f = linspace(0,Fs/2,N/2);
+</pre><h2 id="7">Plot the sampled signal</h2><pre class="codeinput">plot(f,20*log10(abs(xfft(1:N/2))));
+title(<span class="string">'Magnitude of x(n) with N=1024 fft'</span>);
+xlabel(<span class="string">'f'</span>); ylabel(<span class="string">'x(f)'</span>);
+</pre><img vspace="5" hspace="5" src="homework9_02.png" alt=""> <h2 id="8">Implement the filter "Hd" designed in filterDesigner</h2><pre class="codeinput">load(<span class="string">"filter9_5.mat"</span>)
+y = filter(Hd,x);
+[h,w]=freqz(Hd);
+dB = mag2db(abs(h));
+</pre><h2 id="9">Plot the Filter's Magnitude Response</h2><pre class="codeinput">plot(w,dB);
+title(<span class="string">'Filter Magnitude Response'</span>);
+xlabel(<span class="string">'w'</span>); ylabel(<span class="string">'dB'</span>);
+</pre><img vspace="5" hspace="5" src="homework9_03.png" alt=""> <p>Needs to be scaled properly:</p><pre class="codeinput">ylim([-50 1]); xlim([0 2]);
+</pre><img vspace="5" hspace="5" src="homework9_04.png" alt=""> <h2 id="11">Plot the Output Signal</h2><pre class="codeinput">plot(n,y);
+title(<span class="string">'Output Signal'</span>);
+xlabel(<span class="string">'Time'</span>); ylabel(<span class="string">'Amplitude'</span>);
+</pre><img vspace="5" hspace="5" src="homework9_05.png" alt=""> <h2 id="12">Calculate the dB Magnitude of the Output Signal with N = 1024</h2><pre class="codeinput">yfft = fft(y,N);
+</pre><p>And plot:</p><pre class="codeinput">plot(f,20*log10(abs(yfft(1:N/2))));
+title(<span class="string">'Magnitude of y(n) with N=1024 fft'</span>);
+xlabel(<span class="string">'f'</span>); ylabel(<span class="string">'y(f)'</span>);
+</pre><img vspace="5" hspace="5" src="homework9_06.png" alt=""> <p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2020a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Designing an IIR Filter
+%%
+% A minimum-order IIR filter is designed to process an analog input signal using MATLAB:
+%%
+% $$ t = 3*sin(40*pi*t)+3*cos(50*pi*t) $$
+%%
+% The filter is designed in filterDesigner and loaded into the MATLAB(R) workspace.
+%% Establish the input analog signal
+Fs = 100; Ts = 1/Fs;
+n = 0:Ts:1;
+x = 3*sin(40*pi*n)+3*cos(50*pi*n);
+%% Plot the input signal sampled at Ts
+stem(n,x); 
+title('Sampled Input');
+xlabel('n'); ylabel('x(n)');
+%% Calculate the dB magnitude of the input analog signal where N = 1024
+N = 1024; xfft = fft(x,N);
+f = linspace(0,Fs/2,N/2);
+%% Plot the sampled signal
+plot(f,20*log10(abs(xfft(1:N/2))));
+title('Magnitude of x(n) with N=1024 fft');
+xlabel('f'); ylabel('x(f)');
+%% Implement the filter "Hd" designed in filterDesigner
+load("filter9_5.mat")
+y = filter(Hd,x);
+[h,w]=freqz(Hd);
+dB = mag2db(abs(h));
+%% Plot the Filter's Magnitude Response
+plot(w,dB);
+title('Filter Magnitude Response');
+xlabel('w'); ylabel('dB');
+%%
+% Needs to be scaled properly:
+ylim([-50 1]); xlim([0 2]);
+%% Plot the Output Signal
+plot(n,y);
+title('Output Signal');
+xlabel('Time'); ylabel('Amplitude');
+%% Calculate the dB Magnitude of the Output Signal with N = 1024
+yfft = fft(y,N);
+%%
+% And plot:
+plot(f,20*log10(abs(yfft(1:N/2))));
+title('Magnitude of y(n) with N=1024 fft');
+xlabel('f'); ylabel('y(f)');
+##### SOURCE END #####
+--></body></html>
